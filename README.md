@@ -1,1 +1,1 @@
-Font Inspector, jetpack extension (Extend the Firefox Developer Tool).
+Font Inspector, jetpack extension (Extend the Firefox Developer Tools).
