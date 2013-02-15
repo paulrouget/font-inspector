@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html [
+<!ENTITY % fontinspectorDTD SYSTEM "chrome://fontinspector/locale/fonts.dtd" >
+ %fontinspectorDTD;
+]>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <title>&title;</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <link rel="stylesheet" href="chrome://browser/skin/devtools/common.css" type="text/css"/>
+  <link rel="stylesheet" href="chrome://fontinspector/content/fonts.css" type="text/css"/>
+</head>
+<body class="devtools-monospace" role="application">
+  <script type="application/javascript;version=1.8" src="chrome://fontinspector/content/fonts.js"></script>
+  <script type="application/javascript;version=1.8">
+  <![CDATA[
+    const Cc = Components.classes;
+    const Ci = Components.interfaces;
+
+    let DOMUtils = Cc["@mozilla.org/inspector/dom-utils;1"].getService(Ci.inIDOMUtils);
+
+    let fontinspectorUI = {
+      init: function(target) {
+        this.target = target;
+        this.target.on("navigate", this.onNavigatedAway.bind(this));
+        this.update();
+      },
+
+      onNavigatedAway: function InspectorPanel_onNavigatedAway(event, newWindow) {
+        let onDOMReady = function() {
+          newWindow.removeEventListener("DOMContentLoaded", onDOMReady, true);
+          this.update();
+        }.bind(this);
+        if (newWindow.document.readyState == "loading") {
+          newWindow.addEventListener("DOMContentLoaded", onDOMReady, true);
+        } else {
+          onDOMReady();
+        }
+      },
+
+
+      update: function() {
+        let contentDocument = this.target.tab.linkedBrowser.contentDocument;
+        let body = contentDocument.body;
+        let targetDoc = body.ownerDocument;
+        let rng = targetDoc.createRange();
+        rng.selectNode(body);
+        let fonts = DOMUtils.getUsedFontFaces(rng);
+        let fontsArray = [];
+        for (let i = 0; i < fonts.length; i++) {
+          fontsArray.push(fonts.item(i));
+        }
+        fontsArray = fontsArray.sort(function(a, b) {
+          return a.srcIndex < b.srcIndex;
+        });
+        document.querySelector("#all-fonts").innerHTML = "";
+        document.querySelector("#fonts-count").textContent = fontsArray.length;
+        for (let f of fontsArray) {
+          this.render(f);
+        }
+      },
+
+      render: function(font) {
+        let s = document.querySelector("#template > section");
+        s = s.cloneNode(true);
+
+        s.querySelector(".font-name").textContent = font.name;
+        s.querySelector(".font-css-name").textContent = font.CSSFamilyName;
+        s.querySelector(".font-format").textContent = font.format;
+
+        if (font.srcIndex == -1) {
+          s.classList.add("is-local");
+        } else {
+          s.classList.add("is-remote");
+        }
+
+        s.querySelector(".font-url").value = font.URI;
+
+        let iframe = s.querySelector(".font-preview");
+        if (font.rule) {
+          s.classList.add("has-code");
+          s.querySelector(".font-css-code").textContent = font.rule.style.parentRule.cssText;
+          let base = font.rule.style.parentRule.parentStyleSheet.href.replace(/\/[^\/]*$/,"/")
+          this.buildPreview(iframe, font.CSSFamilyName, font.rule.style.parentRule.cssText, base);
+        } else {
+          this.buildPreview(iframe, font.CSSFamilyName, "", "");
+        }
+
+        document.querySelector("#all-fonts").appendChild(s);
+      },
+      buildPreview: function(iframe, name, cssCode, base) {
+        cssCode = cssCode + "\np {font-family: '" + name + "';}* {font-size: 40px;line-height:100px;padding:0;margin:0;text-align:center;vertical-align:bottom}";
+        let src = "data:text/html;charset=utf-8,<!DOCTYPE HTML><head><base></base></head><style></style><p>Abc</p>";
+        iframe.addEventListener("load", function onload() {
+          iframe.removeEventListener("load", onload, true);
+          let doc = iframe.contentWindow.document;
+          doc.querySelector("base").href = base;
+          doc.querySelector("style").textContent = cssCode;
+        }, true);
+        iframe.src = src;
+      },
+      destroy: function() {
+        this.target = null;
+      },
+    }
+  ]]>
+  </script>
+  <div id="root">
+    <p id="fonts-count"></p>
+    <h1>&title;</h1>
+    <ul id="all-fonts"></ul>
+  </div>
+  <div id="template" style="display:none">
+    <section class="font">
+      <iframe class="font-preview"></iframe>
+      <div class="font-info">
+        <h1 class="font-name"></h1>
+        <span class="font-is-local">&system;</span>
+        <span class="font-is-remote">&remote;</span>
+        <p class="font-format-url">
+          <input readonly="readonly" class="font-url"></input>
+          (<span class="font-format"></span>)
+        </p>
+        <p class="font-css">&usedAs; "<span class="font-css-name"></span>"</p>
+        <pre class="font-css-code"></pre>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

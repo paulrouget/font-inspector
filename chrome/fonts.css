@@ -1,0 +1,107 @@
+* {
+  -moz-box-sizing: border-box;
+}
+
+body {
+  background: #F9F9F9;
+  font-family: Arial;
+  margin: 0;
+}
+
+#root > h1 {
+  display: none;
+}
+
+#fonts-count {
+  font-size: 60px;
+  line-height: 60px;
+  position: absolute;
+  top: -10px;
+  right: 40px;
+  color: #EEE;
+}
+
+#all-fonts {
+  padding: 0;
+}
+
+.font {
+  border-bottom: 1px solid #DDD;
+  padding: 30px 5px;
+  font-size: 0;
+}
+
+.font:last-of-type {
+  border-bottom: 0;
+}
+
+.font:nth-child(even) {
+  background: #F4F4F4;
+}
+
+.font-preview {
+  min-height: 100px;
+  width: 100px;
+  border: 0;
+  display: inline-block;
+  vertical-align: top;
+}
+
+
+.font-info {
+  font-size: 1rem;
+  width: calc(100% - 100px);
+  min-height: 100px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+.font-name {
+  display: inline;
+}
+
+.font-css-code {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: #F3F3F3;
+  padding: 5px;
+  border: 1px dotted #CCC;
+}
+
+.font-is-local,
+.font-is-remote,
+.font-format-url,
+.font-css {
+  color: #999
+}
+
+
+.font-url {
+  border: 1px solid #CCC;
+  color: #888;
+}
+
+.font-url:focus {
+  color: black;
+}
+
+/* Functional */
+
+.font:not(.has-code) .font-css-code {
+  display: none;
+}
+
+.font-is-local,
+.font-is-remote {
+  display:  none;
+}
+
+.font.is-remote .font-is-remote,
+.font.is-local .font-is-local {
+  display: inline;
+}
+
+.font.is-local .font-format-url {
+  display: none;
+}

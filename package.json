@@ -1,9 +1,0 @@
-{
-    "name": "font-inspector", 
-    "license": "MPL 1.1/GPL 2.0/LGPL 2.1", 
-    "author": "Paul Rouget", 
-    "version": "0.1", 
-    "fullName": "Font Inspector", 
-    "id": "jid1-Q6Chxa8rBmN0xg", 
-    "description": "Let you inspect the font-related information from any text on a web page."
-}
