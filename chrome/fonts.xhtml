@@ -27,8 +27,9 @@
 
     let fontinspectorUI = {
       init: function(target) {
+        this.onNavigatedAway = this.onNavigatedAway.bind(this);
         this.target = target;
-        this.target.on("navigate", this.onNavigatedAway.bind(this));
+        this.target.on("navigate", this.onNavigatedAway);
         this.update();
       },
 
@@ -43,7 +44,6 @@
           onDOMReady();
         }
       },
-
 
       update: function() {
         let contentDocument = this.target.tab.linkedBrowser.contentDocument;
@@ -94,6 +94,7 @@
 
         document.querySelector("#all-fonts").appendChild(s);
       },
+
       buildPreview: function(iframe, name, cssCode, base) {
         cssCode = cssCode + "\np {font-family: '" + name + "';}* {font-size: 40px;line-height:100px;padding:0;margin:0;text-align:center;vertical-align:bottom}";
         let src = "data:text/html;charset=utf-8,<!DOCTYPE HTML><head><base></base></head><style></style><p>Abc</p>";
@@ -105,7 +106,9 @@
         }, true);
         iframe.src = src;
       },
+
       destroy: function() {
+        this.target.off("navigate", this.onNavigatedAway);
         this.target = null;
       },
     }

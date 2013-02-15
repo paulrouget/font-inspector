@@ -18,15 +18,12 @@ let fontinspectorStrings = Services.strings.createBundle(fontinspectorProps);
 let fontinspectorDefinition = {
   id: "fontinspector",
   ordinal: 0,
-  icon: "chrome://fontinspector/content/fonts.png", /* FIXME */
   url: "chrome://fontinspector/content/fonts.xhtml",
   label: fontinspectorStrings.GetStringFromName("fontinspector.label"),
   tooltip: fontinspectorStrings.GetStringFromName("fontinspector.tooltip"),
-
   isTargetSupported: function(target) {
     return target.isLocalTab;
   },
-
   build: function(iframeWindow, toolbox) {
     let ui = iframeWindow.fontinspectorUI;
     ui.init(toolbox.target);
